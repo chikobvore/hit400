@@ -1,0 +1,85 @@
+{% extends 'index.html' %} {% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <p id="message" style="color:red"></p>
+
+            <div class=" card-body ">
+                <table id="accounts " class="table table-striped ">
+                    <thead>
+                        <tr>
+                            <th> Patient Name</th>
+                            <th> Patient Surname</th>
+                            <th> Sex </th>
+                            <th> Date of Birth </th>
+                            <th> Physical Address </th>
+                            <th> Email </th>
+                            <th> Contact </th>
+                            <th> Waiting List </th>
+                            <th> Status </th>
+                            <th> Action </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for patient in patients %}
+                        <tr>
+                            <td>{{patient.name}}</td>
+                            <td>{{patient.surname }}</td>
+                            <td>{{patient.sex}}</td>
+                            <td>{{patient.dob}}</td>
+                            <td>{{patient.address}}</td>
+                            <td>{{patient.email}}</td>
+                            <td>{{patient.contact}}</td>
+                            <td>{{patient.waiting_list_no}}</td>
+                            <td> <label class="badge badge-success">{{patient.status}}</label> </td>
+                            <td>
+                                <a href="/uss-obstetrics/{{patient.contact}}" class="btn btn-sm btn-warning">USS Obstetrics</a>
+                                <a href="/uss-pelvis/{{patient.contact}}" class="btn btn-sm btn-default">USS PELVIS</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal  fade" id="destribute" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="message">Generate Report</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">×</span>
+      </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="/payments/export">
+                    <section id="payment" style="display: contents;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Start Date</label>
+                                    <input type="date" name="sd" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">End Date</label>
+                                    <input type="date" name="ed" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                <button class="btn btn-success" type="submit" id="submit">Generate & Export</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

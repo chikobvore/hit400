@@ -1,0 +1,70 @@
+{% extends 'index.html' %} {% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+
+            <div class="card-body ">
+                <form method="POST" action="/new-patient">
+                    <section>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Patient Name</label>
+                                    <input type="text" name="name" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Patient Surname</label>
+                                    <input type="text" name="surname" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Sex</label>
+                                    <select name="sex" class="form-control">
+                                        <option>Male</option>
+                                        <option>Female</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Date of Birth</label>
+                                    <input type="date" name="dob" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="control-label">Physical Address</label>
+                                    <textarea name="address" class="form-control"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Email</label>
+                                    <input type="email" class="form-control" name="email">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Contact(Whatsapp number)</label>
+                                    <input type="text" class="form-control" name="contact">
+                                </div>
+                            </div>
+
+                                <button type="submit" class="btn btn-primary" style="margin: auto;">Save Details</button>
+
+                        </div>
+                    </section>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

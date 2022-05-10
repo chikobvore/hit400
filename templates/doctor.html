@@ -1,0 +1,47 @@
+{% extends 'index.html' %} {% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <p id="message" style="color:red"></p>
+
+            <div class=" card-body ">
+                <table id="accounts " class="table table-striped ">
+                    <thead>
+                        <tr>
+                            <th> Patient Name</th>
+                            <th> Patient Surname</th>
+                            <th> Sex </th>
+                            <th> Date of Birth </th>
+                            <th> Physical Address </th>
+                            <th> Email </th>
+                            <th> Contact </th>
+                            <th> Waiting List </th>
+                            <th> Status </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for patient in patients %}
+                        <tr>
+                            <td>{{patient.name}}</td>
+                            <td>{{patient.surname }}</td>
+                            <td>{{patient.sex}}</td>
+                            <td>{{patient.dob}}</td>
+                            <td>{{patient.address}}</td>
+                            <td>{{patient.email}}</td>
+                            <td>{{patient.contact}}</td>
+                            <td>{{patient.waiting_list_no}}</td>
+                            <td>{{patient.status }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function loadmodal() {
+        document.getElementById('message').textContent = "importing account balances..., process may take some minutes please be patient ";
+    }
+</script>
+{% endblock %}
