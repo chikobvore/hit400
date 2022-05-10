@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime,date
 import numpy as np
 import pandas as pd
 import pymongo
@@ -8,8 +8,10 @@ import json
 import ssl
 import mysql.connector
 import requests
-import dbh,api
+import dbh,api,sh
 import time
+import datetime
+from datetime import timedelta
 
 app = Flask(__name__)
 
@@ -35,7 +37,7 @@ def chatmenu():
     if sender == '263771067779':
         return '', 200
 
-        existance = dbh.db['Senders'].count_documents({"Sender": sender}) 
+    existance = dbh.db['Senders'].count_documents({"Sender": sender}) 
 
     #check if session exist
     if existance < 1:
@@ -48,10 +50,11 @@ def chatmenu():
             }
         dbh.db['Senders'].insert_one(record)
         # -*- coding: utf-8 -*-
-        caption = "Hello "+ senderName +" 🙋🏽‍♂ , \nThank you for contacting HIT CLINIC,I'm Tau, i'm a virtual assistant,\nFor any emergency 👇 \n📞 Dial Number: +263202060823 \n\nPlease visit our clinic first to be registered for this service"
+        caption = "Hello "+ senderName +" 🙋🏽‍♂ , \nThank you for contacting HIT CLINIC,I'm Tau, i'm a virtual assistant,\nFor any emergency 👇 \n📞 Dial Number: +263202060823 \n\nPlease provide your full name"
         attachment_url = 'https://www.africa2trust.com/WBA/Logos/HIT316410143.jpg'
         api.send_attachment(sender,attachment_url,caption)
         return '', 200
+
     else:
 
         response = response
@@ -67,18 +70,39 @@ def chatmenu():
         minutes = total_seconds/60
         if minutes > 10:
             sh.session_status(sender,'0','0')
-            message =  "*Previous session expired*\nHello *"+ senderName +"* 🙋🏽‍♂,\nPlease select one of the following options 👇\n\n"+ str('1️⃣') +"*USS OBSTETRICS*\n\n"+ str('2️⃣') +" *USS PELVIS*\n\n"+str('0️⃣') +" *Cancel*\n\n""
+            message =  "*Previous session expired*\nHello *"+ senderName +"* 🙋🏽‍♂,\nPlease select one of the following options 👇\n\n"+ str('1️⃣') +"*USS OBSTETRICS*\n\n"+ str('2️⃣') +" *USS PELVIS*\n\n"+str('0️⃣') +"*Cancel*\n\n"
             api.reply_message(sender,message)
             return '', 200
 
         if state['session_type'] == "0":
+            if state['Status'] == "0":
+                sh.session_status(sender,'0','B')
+                message =  "*Details successfully saved!*\nThank you *"+ response +"* 🙋🏽‍♂,\nPlease provide your date of birth(dd/mm/yyyy)"
+                api.reply_message(sender,message)
+                return '', 200
+
+            if state['Status'] == "B":
+                sh.session_status(sender,'1','0')
+                message =  "*Details successfully saved!*\nPlease select one of the following options 👇\n\n"+ str('1️⃣') +"*USS OBSTETRICS(PREGNANCY)* \n\n"+ str('2️⃣') +" *USS PELVIS*\n\n"+str('0️⃣')+"*Cancel*\n"
+                api.reply_message(sender,message)
+                return '', 200
+
+            if state['Status'] == "C":
+                sh.session_status(sender,'1','0')
+                message =  "Please select one of the following options 👇\n\n"+ str('1️⃣') +"*USS OBSTETRICS(PREGNANCY)* \n\n"+ str('2️⃣') +" *USS PELVIS*\n\n"+str('0️⃣')+"*Cancel*\n"
+                api.reply_message(sender,message)
+                return '', 200
+            
+
+        if state['session_type'] == "1":
             if response == "1":
-                return obstetrics(reference)
+                sh.session_status(sender,'0','C')
+                return obstetrics(sender)
             elif response == "2":
-                return pelvis(reference)
+                sh.session_status(sender,'0','C')
+                return pelvis(sender)
             else:
-                
-                message =  "*Invalid Response*\nHello *"+ senderName +"* 🙋🏽‍♂,\nPlease select one of the following options 👇\n\n"+ str('1️⃣') +"*USS OBSTETRICS*\n\n"+ str('2️⃣') +" *USS PELVIS*\n\n"+str('0️⃣') +" *Cancel*\n\n""
+                message =  "*Invalid Response*\nHello *"+ senderName +"* 🙋🏽‍♂,\nPlease select one of the following options 👇\n\n"+ str('1️⃣') +"*USS OBSTETRICS(PREGNANCY)*\n\n"+ str('2️⃣') +" *USS PELVIS*\n\n"+str('0️⃣') +" *Cancel*\n\n"
                 api.reply_message(sender,message)
                 return '', 200
 
@@ -121,9 +145,9 @@ def addpatient():
         patient = dbh.db['Patients'].find_one({"contact": contact})
 
         record = {
-            "Sender": sender,
+            "Sender": contact,
             "Timestamp": datetime.datetime.now(),
-            "session_type": "1",
+            "session_type": "0",
             "Status": "0"
             }
         dbh.db['Senders'].insert_one(record)
@@ -132,10 +156,10 @@ def addpatient():
         attachment_url = 'https://www.africa2trust.com/WBA/Logos/HIT316410143.jpg'
         api.send_attachment(contact,attachment_url,caption)
 
-        time.sleep(30)
+        time.sleep(5)
 
-        message =  "Hello *"+ senderName +"* 🙋🏽‍♂,\nPlease select one of the following options 👇\n\n"+ str('1️⃣') +"*USS OBSTETRICS*\n\n"+ str('2️⃣') +" *USS PELVIS*\n\n"+str('0️⃣') +" *Cancel*\n\n""
-        api.reply_message(sender,message)
+        message =  "Hello *"+ str(patient['name'])+ " "+ str(patient['surname']) +"* 🙋🏽‍♂,\nPlease select one of the following options 👇\n\n"+ str('1️⃣') +"*USS OBSTETRICS*\n\n"+ str('2️⃣') +" *USS PELVIS*\n\n"+str('0️⃣') +" *Cancel*\n\n"
+        api.reply_message(contact,message)
         
         return redirect('/manage')
 
@@ -153,19 +177,22 @@ def manage():
 @app.route('/uss-obstetrics/<reference>') 
 def obstetrics(reference):
 
-    message = '''*Prerequisites USS OBSTETRICS*\n1. Wear comfortable, loose-fitting clothing. You may need to remove all clothing and jewelry in the area to be examined. You may need to change into a gown for the procedure.\n
+    message = '''*Prerequisites USS OBSTETRICS(PREGNANCY)*\n1. Wear comfortable, loose-fitting clothing. You may need to remove all clothing and jewelry in the area to be examined. You may need to change into a gown for the procedure.\n
     2. You do not need to fast for this exam (eat all meals as usual on the day of the exam)\n
     3. Take all medications as usual\n
     4. Drink 1 liter of fluid (water, juice or soda) within 15 minutes, one hour prior to your appt time.\n
     5. Do not empty your bladder prior to having this exam (bladder must be full)'''
     api.reply_message(reference,message)
 
-    time.sleep(30)
+    time.sleep(5)
+
+    current_time = datetime.datetime.now()
+
+    future_time = current_time + timedelta(minutes=10)
 
 
-    message = "Hello,Thank you for following our orderly queue. Please come to room 31 for examination\nThank you"
+    message = "Hello,Thank you for following our orderly queue. Please come to room 31 for examination at "+ future_time.strftime('%m-%d-%Y %H:%M:%S.%f') +"\nIf you have any question  please call us at 077000000 or come to our reception"
     api.reply_message(reference,message)
-    sh.session_status(sender,'0','0')
 
     return '',200
 
@@ -182,10 +209,14 @@ def pelvis(reference):
     6. Please let the radiographer/receptionist know if your bladder feels too full to tolerate. They will try to make you as comfortable as possible.'''
     api.reply_message(reference,message)
 
-    time.sleep(30)
+    time.sleep(5)
+
+    current_time = datetime.datetime.now()
+
+    future_time = current_time + timedelta(minutes=10)
 
 
-    message = "Hello,Thank you for following our orderly queue. Please come to room 31 for examination\nThank you"
+    message = "Hello,Thank you for following our orderly queue. Please come to room 31 for examination at "+ future_time.strftime('%m-%d-%Y %H:%M:%S.%f') +"\nIf you have any question  please call us at 077000000 or come to our reception"
     api.reply_message(reference,message)
 
     return '',200
